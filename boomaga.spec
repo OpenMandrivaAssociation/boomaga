@@ -16,7 +16,6 @@ BuildRequires:  lib64cups-devel
 BuildRequires:  qt5-linguist-tools
 BuildRequires:  pkgconfig(poppler-cpp)
 
-#Requires:       qt5-qtbase
 Requires:       poppler
 
 %description
