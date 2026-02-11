@@ -18,6 +18,7 @@ BuildOption:	-DCUPS_FILTER_DIR=%{_libdir}/cups/filter
 BuildOption:	-DCUPS_PPD_DIR=%{_datadir}/ppd/boomaga
 BuildRequires:	qmake5
 BuildRequires:  cmake(Qt5Core)
+BuildRequires:  cmake(Qt5DBus)
 BuildRequires:  cmake(Qt5Gui)
 BuildRequires:  cmake(Qt5Widgets)
 BuildRequires:  cmake(Qt5LinguistTools)
