@@ -10,6 +10,8 @@ Source0:        https://github.com/Boomaga/boomaga/archive/v%{version}/%{name}-%
 Patch0:         boomaga-ghostscript-9.54.patch
 
 BuildRequires:  cmake
+BuildRequires:  make
+BuildRequires:  clang
 BuildRequires:  qt5-qtbase-devel
 BuildRequires:  pkgconfig(poppler)
 BuildRequires:  lib64cups-devel
