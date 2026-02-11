@@ -1,0 +1,340 @@
+From 80d7eaecc655d7e61bbaab7e292d78f1a994ace0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lisandro=20Dami=C3=A1n=20Nicanor=20P=C3=A9rez=20Meyer?=
+ <perezmeyer@gmail.com>
+Date: Mon, 11 Sep 2023 12:25:31 -0300
+Subject: [PATCH 1/9] Bump minimum CMake verison to 3.25.
+
+Support for versions <= 3.5 will be dropped soon. Current Debian stable
+has 3.25, so a good candidate.
+---
+ CMakeLists.txt             | 2 +-
+ src/boomaga/CMakeLists.txt | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 871ca66..ab02cc9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -24,7 +24,7 @@
+  # END_COMMON_COPYRIGHT_HEADER
+ 
+ 
+-cmake_minimum_required(VERSION 3.0.0)
++cmake_minimum_required(VERSION 3.25.0)
+ cmake_policy(SET CMP0028 NEW)
+ 
+ project(boomaga)
+diff --git a/src/boomaga/CMakeLists.txt b/src/boomaga/CMakeLists.txt
+index a36a690..d3966ef 100755
+--- a/src/boomaga/CMakeLists.txt
++++ b/src/boomaga/CMakeLists.txt
+@@ -24,7 +24,7 @@
+  # END_COMMON_COPYRIGHT_HEADER
+ 
+ 
+-cmake_minimum_required(VERSION 3.0.0)
++cmake_minimum_required(VERSION 3.25.0)
+ cmake_policy(SET CMP0028 NEW)
+ if (POLICY CMP0071)
+     cmake_policy(SET CMP0071 NEW)
+
+From d5eb71a6a7a3ef3b08f7f2a9237d9e59f6cafd2a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lisandro=20Dami=C3=A1n=20Nicanor=20P=C3=A9rez=20Meyer?=
+ <perezmeyer@gmail.com>
+Date: Mon, 11 Sep 2023 12:29:14 -0300
+Subject: [PATCH 2/9] Replace depreceated endl with Qt::endl.
+
+---
+ src/boomaga/main.cpp | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/src/boomaga/main.cpp b/src/boomaga/main.cpp
+index 6bcfef6..2f216a2 100644
+--- a/src/boomaga/main.cpp
++++ b/src/boomaga/main.cpp
+@@ -65,20 +65,20 @@ struct Args
+ void printHelp()
+ {
+     QTextStream out(stdout);
+-    out << "Usage: boomaga [options] [files...]" << endl;
+-    out << endl;
++    out << "Usage: boomaga [options] [files...]" << Qt::endl;
++    out <<Qt::endl;
+ 
+-    out << "Boomaga provides a virtual printer for CUPS. This can be used" << endl;
+-    out << "for print preview or for print booklets." << endl;
+-    out << endl;
++    out << "Boomaga provides a virtual printer for CUPS. This can be used" <<Qt::endl;
++    out << "for print preview or for print booklets." <<Qt::endl;
++    out <<Qt::endl;
+ 
+-    out << "Options:" << endl;
+-    out << "  -h, --help              Show help about options" << endl;
+-    out << "  -V, --version           Print program version" << endl;
+-    out << endl;
++    out << "Options:" <<Qt::endl;
++    out << "  -h, --help              Show help about options" <<Qt::endl;
++    out << "  -V, --version           Print program version" <<Qt::endl;
++    out <<Qt::endl;
+ 
+-    out << "Arguments:" << endl;
+-    out << "  files                    One or more PDF files" << endl;
++    out << "Arguments:" <<Qt::endl;
++    out << "  files                    One or more PDF files" <<Qt::endl;
+ 
+ 
+ }
+@@ -90,7 +90,7 @@ void printHelp()
+ void printVersion()
+ {
+     QTextStream out(stdout);
+-    out << "boomaga " << FULL_VERSION << endl;
++    out << "boomaga " << FULL_VERSION <<Qt::endl;
+ }
+ 
+ 
+@@ -100,8 +100,8 @@ void printVersion()
+ int printError(const QString &msg)
+ {
+     QTextStream out(stdout);
+-    out << msg << endl << endl;
+-    out << "Use --help to get a list of available command line options." << endl;
++    out << msg << endl <<Qt::endl;
++    out << "Use --help to get a list of available command line options." << Qt::endl;
+     return 1;
+ }
+ 
+
+From df15174c21616fe60f25270bee71737ca8229de6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lisandro=20Dami=C3=A1n=20Nicanor=20P=C3=A9rez=20Meyer?=
+ <perezmeyer@gmail.com>
+Date: Mon, 11 Sep 2023 12:37:17 -0300
+Subject: [PATCH 3/9] Replace deprecated calls on QByteArray::append(const
+ QString &str)
+
+These should now be explicit on the type. My guess here is that Latin1
+will do.
+---
+ src/boomaga/kernel/project.cpp | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
+
+diff --git a/src/boomaga/kernel/project.cpp b/src/boomaga/kernel/project.cpp
+index cb8a136..eff8619 100644
+--- a/src/boomaga/kernel/project.cpp
++++ b/src/boomaga/kernel/project.cpp
+@@ -1012,7 +1012,7 @@ QByteArray MetaData::asPDFDict() const
+  ************************************************/
+ void MetaData::addDictItem(QByteArray &out, const QString &key, const QString &value) const
+ {
+-    out.append("/" + key + " <FEFF");
++    out.append(QString("/").toLatin1() + key.toLatin1() + QString(" <FEFF").toLatin1());
+     const ushort* utf16 = value.utf16();
+     for (int i=0; utf16[i]>0; ++i)
+     {
+@@ -1023,7 +1023,8 @@ void MetaData::addDictItem(QByteArray &out, const QString &key, const QString &v
+         qint8 b1 = (utf16[i] & 0xFF00) >> 8;
+         qint8 b2 = (utf16[i] & 0x00FF);
+ #endif
+-        out.append(QString("%1%2").arg(b1, 2, 16, QChar('0')).arg(b2, 2, 16, QChar('0')));
++        auto string = QString("%1%2").arg(b1, 2, 16, QChar('0')).arg(b2, 2, 16, QChar('0'));
++        out.append(string.toLatin1());
+     }
+     out.append(">\n");
+ }
+@@ -1038,18 +1039,23 @@ void MetaData::addDictItem(QByteArray &out, const QString &key, const QDateTime
+     utc.setTimeSpec(Qt::LocalTime);
+     int offset = utc.secsTo(value) / 60;
+ 
+-    out.append("/" + key + " (");
+-    out.append(value.toString("yyyyMMddhhmmss"));
++    out.append(QString("/").toLatin1() + key.toLatin1() + QString(" (").toLatin1());
++    out.append(value.toString("yyyyMMddhhmmss").toLatin1());
+ 
+     if (offset > 0)
+-        out.append(QString("+%1'%2'")
+-                   .arg(offset / 60, 2, 10, QChar('0'))
+-                   .arg(offset % 60, 2, 10, QChar('0')));
++    {
++        auto string = QString("+%1'%2'")
++                          .arg(offset / 60, 2, 10, QChar('0'))
++                          .arg(offset % 60, 2, 10, QChar('0'));
++        out.append(string.toLatin1());
++    }
+     else if (offset < 0)
+-        out.append(QString("-%1'%2'")
+-                    .arg(-offset / 60, 2, 10, QChar('0'))
+-                    .arg(-offset % 60, 2, 10, QChar('0')));
+-
++    {
++        auto string = QString("-%1'%2'")
++                          .arg(-offset / 60, 2, 10, QChar('0'))
++                          .arg(-offset % 60, 2, 10, QChar('0'));
++        out.append(string.toLatin1());
++    }
+     out.append(")\n");
+ }
+ 
+
+From 6908d3cf71872b2e16c51d819f5277136b11f37b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lisandro=20Dami=C3=A1n=20Nicanor=20P=C3=A9rez=20Meyer?=
+ <perezmeyer@gmail.com>
+Date: Mon, 11 Sep 2023 12:39:37 -0300
+Subject: [PATCH 4/9] Solve possible dangling reference warning by using auto.
+
+Let the compiler (hopefully) do the right thing.
+---
+ src/boomaga/kernel/pdfprocessor.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/boomaga/kernel/pdfprocessor.cpp b/src/boomaga/kernel/pdfprocessor.cpp
+index 81a67da..843e4d5 100644
+--- a/src/boomaga/kernel/pdfprocessor.cpp
++++ b/src/boomaga/kernel/pdfprocessor.cpp
+@@ -98,7 +98,7 @@ void PdfProcessor::run(PDF::Writer *writer, quint32 objNumOffset)
+  ************************************************/
+ void fillPageInfo(PdfPageInfo *pageInfo, const PDF::Dict &pageDict, const PDF::Dict &inherited)
+ {
+-    const PDF::Array &mediaBox = pageDict.value("MediaBox", inherited.value("MediaBox")).asArray();
++    const auto mediaBox = pageDict.value("MediaBox", inherited.value("MediaBox")).asArray();
+     if (mediaBox.count() != 4)
+         throw QString("Incorrect MediaBox rectangle");
+ 
+@@ -107,7 +107,7 @@ void fillPageInfo(PdfPageInfo *pageInfo, const PDF::Dict &pageDict, const PDF::D
+                                 mediaBox.at(2).asNumber().value() - mediaBox.at(0).asNumber().value(),
+                                 mediaBox.at(3).asNumber().value() - mediaBox.at(1).asNumber().value());
+ 
+-    const PDF::Array &cropBox  = pageDict.value("CropBox", inherited.value("CropBox")).asArray();
++    const auto cropBox  = pageDict.value("CropBox", inherited.value("CropBox")).asArray();
+     if (cropBox.isValid())
+     {
+         if (cropBox.count() != 4)
+
+From b73a0ad2d1bd06fef8c1743461972e1f705f212e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lisandro=20Dami=C3=A1n=20Nicanor=20P=C3=A9rez=20Meyer?=
+ <perezmeyer@gmail.com>
+Date: Mon, 11 Sep 2023 12:46:32 -0300
+Subject: [PATCH 5/9] Add extra formats supported in Qt >= 5.14.
+
+---
+ src/boomaga/render.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/boomaga/render.cpp b/src/boomaga/render.cpp
+index 238a15a..216b4ee 100644
+--- a/src/boomaga/render.cpp
++++ b/src/boomaga/render.cpp
+@@ -57,6 +57,8 @@ QImage doRenderSheet(poppler::document *doc, int sheetNum, double resolution)
+         case poppler::image::format_mono:    format = QImage::Format_Mono;    break;
+         case poppler::image::format_rgb24:   format = QImage::Format_RGB32;   break;
+         case poppler::image::format_argb32:  format = QImage::Format_ARGB32;  break;
++        case poppler::image::format_gray8:   format = QImage::Format_Grayscale8; break;
++        case poppler::image::format_bgr24:   format = QImage::Format_BGR888; break;
+         }
+ 
+ 
+
+From bf5e1dc1e38834b93fcfcfa9433f9c22bd4d39f4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lisandro=20Dami=C3=A1n=20Nicanor=20P=C3=A9rez=20Meyer?=
+ <perezmeyer@gmail.com>
+Date: Mon, 11 Sep 2023 12:48:28 -0300
+Subject: [PATCH 6/9] Fix typo when adding Qt::endl.
+
+---
+ src/boomaga/main.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/boomaga/main.cpp b/src/boomaga/main.cpp
+index 2f216a2..d116ec5 100644
+--- a/src/boomaga/main.cpp
++++ b/src/boomaga/main.cpp
+@@ -100,7 +100,7 @@ void printVersion()
+ int printError(const QString &msg)
+ {
+     QTextStream out(stdout);
+-    out << msg << endl <<Qt::endl;
++    out << msg << Qt::endl;
+     out << "Use --help to get a list of available command line options." << Qt::endl;
+     return 1;
+ }
+
+From c284266b9e0e8a1eae092aa006a8cc43900324a2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lisandro=20Dami=C3=A1n=20Nicanor=20P=C3=A9rez=20Meyer?=
+ <perezmeyer@gmail.com>
+Date: Mon, 11 Sep 2023 12:52:32 -0300
+Subject: [PATCH 7/9] Replace deprecated QString:: namespace for Qt::.
+
+---
+ src/boomaga/pdfparser/pdfreader.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/boomaga/pdfparser/pdfreader.cpp b/src/boomaga/pdfparser/pdfreader.cpp
+index acad00a..ae4f83b 100644
+--- a/src/boomaga/pdfparser/pdfreader.cpp
++++ b/src/boomaga/pdfparser/pdfreader.cpp
+@@ -1260,7 +1260,7 @@ Object Reader::getObject(const XRefEntry &xrefEntry) const
+  ************************************************/
+ const Value Reader::find(const QString &path) const
+ {
+-    QStringList objects = path.split('/', QString::SkipEmptyParts);
++    QStringList objects = path.split('/', Qt::SkipEmptyParts);
+     if (objects.first() == "Trailer")
+         objects.removeFirst();
+     QString val = objects.takeLast();
+
+From deabdfa54e5aed218006e2ede4890920c4735ba9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lisandro=20Dami=C3=A1n=20Nicanor=20P=C3=A9rez=20Meyer?=
+ <perezmeyer@gmail.com>
+Date: Mon, 11 Sep 2023 12:53:33 -0300
+Subject: [PATCH 8/9] Resolve possible dangling reference by using auto.
+
+---
+ src/boomaga/pdfparser/pdfreader.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/boomaga/pdfparser/pdfreader.cpp b/src/boomaga/pdfparser/pdfreader.cpp
+index ae4f83b..c809eee 100644
+--- a/src/boomaga/pdfparser/pdfreader.cpp
++++ b/src/boomaga/pdfparser/pdfreader.cpp
+@@ -183,7 +183,7 @@ XRefStreamData::XRefStreamData(const char *buf, const quint64 size, const Dict &
+     Q_UNUSED(mSize)
+     // W - An array of integers representing the size of the fields in a
+     // single cross-reference entry.
+-    const Array &w = dict.value("W").asArray();
++    const auto w = dict.value("W").asArray();
+     if (!w.isValid())
+         throw ReaderError("Incorrect XRef stream dictionary", 0);
+ 
+@@ -1115,7 +1115,7 @@ void Reader::readObjectFromStream(ObjNum objNum, Object *res, ObjNum streamObjNu
+     }
+     else
+     {
+-        const Link &extends = streamObj.dict().value("Extends").asLink();
++        const auto extends = streamObj.dict().value("Extends").asLink();
+         if (extends.isValid())
+         {
+             readObjectFromStream(objNum, res, extends.objNum(), extends.genNum(), 0);
+
+From 9a7059b36e3330edb6bdab107c7e78a1d8e6c9e2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lisandro=20Dami=C3=A1n=20Nicanor=20P=C3=A9rez=20Meyer?=
+ <perezmeyer@gmail.com>
+Date: Mon, 11 Sep 2023 13:01:49 -0300
+Subject: [PATCH 9/9] Issue a warning instead of crashing.
+
+This throw was not being catched, better issue a warning instead.
+---
+ src/boomaga/kernel/pdfprocessor.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/boomaga/kernel/pdfprocessor.cpp b/src/boomaga/kernel/pdfprocessor.cpp
+index 843e4d5..e15ec50 100644
+--- a/src/boomaga/kernel/pdfprocessor.cpp
++++ b/src/boomaga/kernel/pdfprocessor.cpp
+@@ -169,7 +169,7 @@ int PdfProcessor::walkPageTree(int pageNum, const PDF::Object &page, const PDF::
+         }
+         catch (const QString &err)
+         {
+-            throw QString("Error on page %1 %2: %3").arg(page.objNum()).arg(page.genNum()).arg(err);
++            qWarning() << QString("Error on page %1 %2: %3").arg(page.objNum()).arg(page.genNum()).arg(err);
+         }
+ 
+         pageInfo.xObjNums << writePageAsXObject(page, inherited);
