@@ -1,3 +1,2 @@
-sources: 
-  boomaga-3.0.0.tar.gz: 543acc5d7da70d86c45cd44a6b64a243bc0ec908
-  boomaga-ghostscript-9.54.patch: d67cf7aaa8f65d6a72a59c042e6423b7acb94b38
+sources:
+  boomaga-3.5.0.tar.gz: 0e7e9ec7320ce0182cfa286e7751392c94de95d2
