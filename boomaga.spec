@@ -1,5 +1,5 @@
 Name:		boomaga
-Version:	3.5.0
+Version:	3.6.0
 Release:	1
 Summary:	Virtual printer for viewing a document before printing it out using the physical printer
 License:	GPL-2.0-only AND LGPL-2.1-only
